@@ -22,23 +22,12 @@ To do:
     [ ] make the buy sell mechanic affect the stock market
 [ ] implement events into the game
     [ ] implement a text engine in the game
-    [ ] random events:
-        [ ] war
-        [ ] pandemic
-        [ ] coup
-        [ ] technology
 [ ] basic gameloop
     [/] return the seed from the random module so that pwede mareproduce ang states
     [/] player is able to bet on the stock market
     [ ] events can happen + implementation of potential sources of infos
+    [ ] add the possibility to pause the game
 [ ] add a title screen
-
-CLEAN UP THE TRADING FUNCTIONALITY
-
-
-currency in dollars?
-setting?
-time period?
 '''
 import pygame, random, os, sys
 import numpy as np 
@@ -48,6 +37,7 @@ from utils import *
 from graph import *
 from trade import *
 from market import *
+from event import *
 
 pygame.init()
 
@@ -62,39 +52,51 @@ np.random.seed(SEED)
 print(f'GAME SEED: {SEED}')
 
 viewport = Viewport()
-
 trade = Trade(money)
 market = Market(1000)
+newsbox = NewsBox((60,viewport.pos[1]+viewport.height+45),(630,150))
+
+phenomena = Event(trade, market, newsbox)
+
 def game():
-    ''' hodgepodge of local variables to be cleaned up later '''
     debug_state = False         # ctrl + d
     boundaries_state = False    # ctrl + b
-
-    # add a pause function
     
+    # add a pause function
+
+    occurence = ['','', 100, False, '']   
     while True:
         window.fill(colors['bg'])
-        
         market.update()
-    
-        trade.render(window)
+        trade.update(viewport.y_vals[-1])
+        newsbox.update(occurence)
 
+        
+        trade.render(window)
         viewport.draw(colors['main'])
         viewport.render(window)
 
-        trade.update(viewport.y_vals[-1])
-                       
 
+        # logo drawing on top right
+        # pygame.draw.rect(window, 'red4', pygame.Rect((700, scry/20+15),((scrx-screen_margin)-700,305-(scry/20+15))))
+        # window.blit(text_main.render('LOGO',False,colors['bg']),(((scrx-screen_margin+700)/2,(305)/2)))
+        
         # time bar
         pygame.draw.rect(window, colors['ui'], pygame.Rect((viewport.pos[0], scry/20),((viewport.interval - pygame.time.get_ticks())/(2*interval/1000),10)))
     
+        # events here happen every update
         if (viewport.interval - pygame.time.get_ticks()) <= 0:
+            # update the viewport
             viewport.interval = pygame.time.get_ticks() + interval
             viewport.update(market.gen_points())
+            
+            
+            
+            phenomena.day+=1
+            occurence = phenomena.select()
 
-            # calculate new price of shares
-            # trade.value *= viewport.processed_vals[-2]/viewport.processed_vals[-1]
-            # trade.value = round(trade.value)
+            updateCSV()
+            
 
         ''' text printing '''
         com_name = text_main.render('DEATH CAPITAL, INC.',False, colors['main'])
@@ -108,7 +110,7 @@ def game():
         # outline
         pygame.draw.rect(window,colors['main'],pygame.Rect((viewport.pos[0]-outline_width,viewport.pos[1]-outline_width),(viewport.width+2*outline_width,viewport.height+2*outline_width)),width=outline_width) 
         
-
+        newsbox.render(window)      # has to come after the outline drawing
 
 
         for event in pygame.event.get():
@@ -163,6 +165,7 @@ def game():
                 ''' time controls '''
                 if event.key == pygame.K_SPACE:
                     time_stop = True
+                    # phenomena.inheritance()
 
                 # debug tools
                 if (event.mod & pygame.KMOD_LCTRL) and (event.key == pygame.K_d):
@@ -175,6 +178,8 @@ def game():
                         boundaries_state = True
                     else:
                         boundaries_state = False
+                if event.key == pygame.K_BACKSLASH:
+                    print(phenomena.weights)
                     
                     
                 

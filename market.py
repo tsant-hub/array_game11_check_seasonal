@@ -73,8 +73,8 @@ class Market():
         self.initial_price = initial_price / 10       # accounting for amplification
         self.output = np.array([self.initial_price])
         
-        self.mu = 0.20 / self.time_horizon      # % annual yield
-        self.sigma = 0.02       # % volatility
+        self.mu = 0.30 / self.time_horizon      # % annual yield
+        self.sigma = 0.01       # % volatility
 
         self.test = np.array([self.initial_price])
         self.season=Season(period=63,amplitude=3*(10**-4))
@@ -101,8 +101,9 @@ class Market():
         # plt.show()
 
 
-# np.random.seed(1)
+# np.random.seed(889571)
 # for j in range(100):
+#     np.random.seed()
 #     market = Market(1000)
 #     for i in range(252):
 #         market.gen_points()

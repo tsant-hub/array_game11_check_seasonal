@@ -8,6 +8,7 @@ screen_margin = 50
 interval = 3000
 outline_width = 3
 money = 100000
+DAY = 0
 
 colors = {                      # red
     'main': 'red',
@@ -16,7 +17,8 @@ colors = {                      # red
     'text': 'red4',
     'ui': 'red3',
     'button': 'red',
-    'button_pressed': 'black'
+    'button_pressed': 'black',
+    'window': 'gray10',
 }
 # colors = {                    #green
 #     'main': 'green',

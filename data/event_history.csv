@@ -1,0 +1,6 @@
+day,name,type,probability,decision,message
+1,Pickpocket,Regular,50,False,Someone pickpocketed you $1000!
+2,Pickpocket,Regular,50,False,Someone pickpocketed you $1000!
+3,Billiards,Regular,50,False,Your friends invite you to billiards.
+7,Inheritance,Regular,50,False,"Your deceased kin left you $100,000!"
+10,Pickpocket,Regular,50,False,Someone pickpocketed you $1000!
