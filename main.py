@@ -54,10 +54,14 @@ print(f'GAME SEED: {SEED}')
 viewport = Viewport()
 trade = Trade(money)
 market = Market(1000)
+<<<<<<< HEAD
 newsbox = NewsBox((60,viewport.pos[1]+viewport.height+45),(630,150))
 
 phenomena = Event(trade, market, newsbox)
 
+=======
+newsbox = NewsBox((60,viewport.pos[1]+viewport.height+45),(630,145))
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 def game():
     debug_state = False         # ctrl + d
     boundaries_state = False    # ctrl + b
@@ -69,13 +73,23 @@ def game():
         window.fill(colors['bg'])
         market.update()
         trade.update(viewport.y_vals[-1])
+<<<<<<< HEAD
         newsbox.update(occurence)
 
+=======
+        newsbox.update()
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
         
         trade.render(window)
         viewport.draw(colors['main'])
         viewport.render(window)
+        newsbox.render(window)
 
+<<<<<<< HEAD
+=======
+        
+                       
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 
         # logo drawing on top right
         # pygame.draw.rect(window, 'red4', pygame.Rect((700, scry/20+15),((scrx-screen_margin)-700,305-(scry/20+15))))

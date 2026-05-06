@@ -102,14 +102,23 @@ class Market():
 
 
 # np.random.seed(889571)
+<<<<<<< HEAD
 # for j in range(100):
 #     np.random.seed()
 #     market = Market(1000)
 #     for i in range(252):
 #         market.gen_points()
 #     market.graph()
+=======
+for j in range(100):
+    np.random.seed()
+    market = Market(1000)
+    for i in range(252):
+        market.gen_points()
+    market.graph()
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 
-# plt.show()
+plt.show()
 
 
 

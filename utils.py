@@ -7,7 +7,11 @@ from pygame.font import Font
 
 import pygame, os
 import numpy as np
+<<<<<<< HEAD
 import pandas as pd
+=======
+
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 from defaults import *
 
 
@@ -113,9 +117,14 @@ class Button():
 
 class TextBox():
     def __init__(self, pos, size):
+<<<<<<< HEAD
         self.size = size
         self.pos = np.array(pos)
         self.surface = pygame.Surface(self.size)
+=======
+        self.pos = np.array(pos)
+        self.surface = pygame.Surface(size)
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
         self.buttons = []
         # self.rect = pygame.Rect(pos,size)
         
@@ -128,6 +137,7 @@ class TextBox():
             button.render(window)
         
         
+<<<<<<< HEAD
     def update(self):
         for button in self.buttons:
             button.update()
@@ -138,10 +148,13 @@ class Window():
         self.size = size
         self.surface = pygame.Surface(size)
         self.buttons = []
+=======
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 
     def update(self):
         for button in self.buttons:
             button.update()
+<<<<<<< HEAD
 
     def render(self,window):
         window.blit(self.surface, self.pos)
@@ -150,12 +163,18 @@ class Window():
             button.render(window)
 
     
+=======
+        pass
+
+
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 
 class NewsBox(TextBox):
     def __init__(self, pos, size):
         TextBox.__init__(self, pos, size)
         
         # button initialize
+<<<<<<< HEAD
         self.button_log = Button(self.pos+np.array([self.size[0]-50,self.size[1]-25]), (100,50), 'Log', 'click')
         self.button_scrollup = Button(self.pos+np.array([self.size[0]-25,self.size[1]-75]), (50,50), '^', 'click')
         self.button_scrolldown = Button(self.pos+np.array([self.size[0]-75,self.size[1]-75]), (50,50), 'v', 'click')
@@ -260,3 +279,8 @@ class NewsBox(TextBox):
 
         
         
+=======
+        self.button_more = Button(self.pos+np.array([50,25]), (100,50), 'More', 'click')
+
+        self.buttons.extend([self.button_more])
+>>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
