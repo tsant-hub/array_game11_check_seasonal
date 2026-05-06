@@ -36,26 +36,17 @@ PLAN
 '''
 import pygame, os
 import numpy as np
-<<<<<<< HEAD
 import pandas as pd
-=======
-# import pandas as pd
->>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 from defaults import *
 from utils import *
 
 
 class Event():
-<<<<<<< HEAD
     def __init__(self, trade, market, newsbox):
-=======
-    def __init__(self, level):
->>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
         ''' 
         << Event Documentation here >>>
         Name:
         Description:
-<<<<<<< HEAD
         Probability:  most rare must be 1 in 1000
         Trigger Condition:
         End Condition:
@@ -144,11 +135,5 @@ class Event():
         self.trade.render_butt = False
 
 
-=======
-        Trigger Condition:
-        End Condition:
-        '''
-        self.LEVEL = level
->>>>>>> 61e33c8e3955fbe40658c44c79757d0367635ade
 
 
