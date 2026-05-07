@@ -117,8 +117,8 @@ class Trade():
     # how tf do you buy and sell with shares
     def buy(self, amt):
         self.share+=amt
-        self.prev_value=amt*self.price
-        self.balance-=self.prev_value
+        self.prev_value=self.price
+        self.balance-=self.prev_value*amt
 
 
     

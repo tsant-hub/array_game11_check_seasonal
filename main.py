@@ -43,12 +43,12 @@ pygame.init()
 
 window = pygame.display.set_mode((scrx, scry))
 pygame.clock = pygame.time.Clock()
-pygame.display.set_caption('BLACK MARKET')
+pygame.display.set_caption('DEATH CAPITAL, INC.')
 
 # for testing purposes
 SEED = np.random.randint(0,1000000)
 np.random.seed(SEED)
-# np.random.seed(266007)
+# SEED = np.random.seed(156061)
 print(f'GAME SEED: {SEED}')
 
 viewport = Viewport()
@@ -94,6 +94,7 @@ def game():
             
             phenomena.day+=1
             occurence = phenomena.select()
+            phenomena.update()
 
             updateCSV()
             
@@ -185,6 +186,6 @@ def game():
                 
         pygame.display.update()
         pygame.clock.tick(60)
-        pygame.display.set_caption(f'BLACK MARKET {pygame.clock.get_fps()}')
+        pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
 
 game()

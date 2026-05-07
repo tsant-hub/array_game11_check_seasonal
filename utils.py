@@ -24,7 +24,7 @@ text_dash: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323
 if os.path.exists(os.path.join('data','event_history.csv')):
     os.remove(os.path.join('data','event_history.csv'))
 f = open(os.path.join('data','event_history.csv'),'w')
-f.write('day,name,type,probability,decision,message\n')
+f.write('day,name,type,probability,decision,message,duration\n')
 f.close()
 
 
@@ -45,7 +45,7 @@ def debug_menu(state, window, viewport, market):
 
         window.blit(text_viewui.render(f'GBM Model Values', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+125))
         
-        window.blit(text_viewui.render(f'Ann. Yield (mu): {market.mu*market.time_horizon}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+150))
+        window.blit(text_viewui.render(f'Ann. Yield (mu): {market.mu}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+150))
         window.blit(text_viewui.render(f'Vol.(sigma): {market.sigma}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+175))
 
         # window.blit(text_viewui.render(f'Buy: {bet}' if bet>=0 else f'Sell: {-bet}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+225))
@@ -159,6 +159,8 @@ class NewsBox(TextBox):
         self.button_log = Button(self.pos+np.array([self.size[0]-50,self.size[1]-25]), (100,50), 'Log', 'click')
         self.button_scrollup = Button(self.pos+np.array([self.size[0]-25,self.size[1]-75]), (50,50), '^', 'click')
         self.button_scrolldown = Button(self.pos+np.array([self.size[0]-75,self.size[1]-75]), (50,50), 'v', 'click')
+        self.button_agree = Button(self.pos+np.array([205,self.size[1]-25]), (100,50), 'Yes', 'click')
+        self.button_disagree = Button(self.pos+np.array([380,self.size[1]-25]), (100,50), 'No', 'click')
         self.buttons.extend([self.button_log])
         
         self.evnt = ['','', 100, False, '']
@@ -170,7 +172,7 @@ class NewsBox(TextBox):
         self.entry = 0
 
         # decision box initialize
-        self.decisionbox = Window((self.pos),(self.size))
+        self.decision = None
         
 
 
@@ -179,23 +181,35 @@ class NewsBox(TextBox):
             button.update()
         pass
         
+        self.evnt = evt
+
         # view log logic
+        if self.view_log:
+            self.button_scrollup.update()
+            self.button_scrolldown.update()
+        
         if self.button_log.state and not self.view_log:
             self.view_log = True
         elif self.button_log.state and self.view_log:
             self.bet = 0
             self.view_log = False
 
-        if self.view_log:
-            self.button_scrollup.update()
-            self.button_scrolldown.update()
-
         if self.button_scrollup.state and self.entry > 0 and len(EVENT_HISTORY)>4:
             self.entry -= 1
         if self.button_scrolldown.state and len(EVENT_HISTORY)>4:
             self.entry += 1
         
-        self.evnt = evt
+        # for the decision logic
+        if self.evnt[3]:
+            self.button_agree.update()
+            self.button_disagree.update()
+        else:
+            self.decision = None
+
+        if self.button_agree.state and self.decision == None:
+            self.decision = True
+        if self.button_disagree.state and self.decision == None:
+            self.decision = False
 
         self.message = text_dash.render(f'{self.evnt[4]}',False, colors['ui'], wraplength=self.size[0]-140)
         
@@ -246,8 +260,10 @@ class NewsBox(TextBox):
 
 
         # decision making
-        # if self.message[3]:
-        #     self.decisionbox.render()
+        if self.evnt[3] and self.decision == None and not self.view_log:
+            self.button_agree.render(window)
+            self.button_disagree.render(window)
+            
 
 
 
