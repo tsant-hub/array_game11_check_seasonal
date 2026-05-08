@@ -109,7 +109,7 @@ class Market():
 #         market.gen_points()
 #     market.graph()
 
-plt.show()
+# plt.show()
 
 
 
