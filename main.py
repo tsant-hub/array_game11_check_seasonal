@@ -10,23 +10,24 @@ Description: The main process of the game. Handles player input and pygame backe
 
 NOTES
 To do:
-[ ] implement the market system
+[/] implement the market system
     [/] moving graph
     [ ] add viewport utilities
         [/] zoom and shi
-        [ ] make it so that when you zoom in gadamo ang markers
+        [/] make it so that when you zoom in gadamo ang markers
     [/] graph that moves according to principles of the stock market
         [/] the long-term and short-term factorsk
 [/] implement player input
     [/] buy and sell mechanic
     [ ] make the buy sell mechanic affect the stock market
-[ ] implement events into the game
-    [ ] implement a text engine in the game
-[ ] basic gameloop
+[/] implement events into the game
+    [/] implement a text engine in the game
+[/] basic gameloop
     [/] return the seed from the random module so that pwede mareproduce ang states
     [/] player is able to bet on the stock market
-    [ ] events can happen + implementation of potential sources of infos
-    [ ] add the possibility to pause the game
+    [/] events can happen + implementation of potential sources of infos
+    [ ] add the game speed and pausing
+    [ ] add visible tension meter; as well as hidden stress, badness, etc. meters
 [ ] add a title screen
 '''
 import pygame, random, os, sys
@@ -46,9 +47,9 @@ pygame.clock = pygame.time.Clock()
 pygame.display.set_caption('DEATH CAPITAL, INC.')
 
 # for testing purposes
-SEED = np.random.randint(0,1000000)
-np.random.seed(SEED)
-# SEED = np.random.seed(156061)
+# SEED = np.random.randint(0,1000000)
+# np.random.seed(SEED)
+SEED = np.random.seed(278118)
 print(f'GAME SEED: {SEED}')
 
 viewport = Viewport()
@@ -95,7 +96,7 @@ def game():
             phenomena.day+=1
             occurence = phenomena.select()
             phenomena.update()
-
+            print(market.mu, phenomena.market.mu, phenomena.regular_mu)
             updateCSV()
             
 
@@ -124,11 +125,7 @@ def game():
                     viewport.translate(1)
                 if event.key == pygame.K_s and not viewport.follow:
                     viewport.translate(-1)
-                
-                if event.key == pygame.K_d:
-                    market.mu += 0.01
-                if event.key == pygame.K_a:
-                    market.mu -= 0.01
+
                 if event.key == pygame.K_e:
                     market.sigma += 0.001
                 if event.key == pygame.K_q:

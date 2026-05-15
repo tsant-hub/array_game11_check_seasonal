@@ -168,8 +168,9 @@ class Event():
 
         DEBUG EVENT
         '''
-        self.market.mu += (self.market.mu)/(remaining*100)
-        if remaining <= 0:
+        # fix the market mu
+        self.market.mu += (self.market.mu)/(remaining*5)
+        if remaining <= 1:
             self.market.mu = self.regular_mu
 
 

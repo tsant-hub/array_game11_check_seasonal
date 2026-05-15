@@ -7,7 +7,7 @@ scrx, scry = (1000,700)
 screen_margin = 50
 interval = 3000
 outline_width = 3
-money = 100000
+money = 10000
 DAY = 0
 
 colors = {                      # red
