@@ -130,21 +130,26 @@ def game():
                     market.sigma += 0.001
                 if event.key == pygame.K_q:
                     market.sigma -= 0.001
-                
-                # Corrected the keybinds for the zoom in zoom out of the y axis to match that of the x axis
-                # Also simplified the scale_y method
-
-                if event.key == pygame.K_j and viewport.view_height > 1000:
-                    viewport.scale_y(-10)
+            
+# Fixed? zoom scaling
+                # if event.key == pygame.K_j and viewport.view_height > 100:
+                #     viewport.scale_y(-10)
+                # if event.key == pygame.K_k and viewport.view_height < viewport.max_view_height:
+                #     viewport.scale_y(10)
+                if event.key == pygame.K_j and viewport.view_height > 100:
+                    viewport.scale_y(-1)
                 if event.key == pygame.K_k and viewport.view_height < viewport.max_view_height:
-                    viewport.scale_y(10)
-                    
+                    viewport.scale_y(1)
 
                 ''' modify x_scale to account for 252 trading days '''
                 if event.key == pygame.K_u and viewport.view_length > 5:
                     viewport.scale_x(-5)
                 if event.key == pygame.K_i and viewport.view_length < viewport.max_view_length:
                     viewport.scale_x(5)
+                # if event.key == pygame.K_u and viewport.view_length > 5:
+                #     viewport.scale_x(-10)
+                # if event.key == pygame.K_i and viewport.view_length < viewport.max_view_length:
+                #     viewport.scale_x(10)
 
                 if event.key == pygame.K_h:
                     # you can move this code to the viewport class blueprint if you want to make this more organized
@@ -159,7 +164,7 @@ def game():
                 
                 ''' trading controls '''
                 # add trading controls
-
+                
                 ''' time controls '''
                 if event.key == pygame.K_SPACE:
                     time_stop = True
