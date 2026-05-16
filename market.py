@@ -64,6 +64,7 @@ class Season():
 # Geometric Brownian Motion model
 class Market():
     def __init__(self, initial_price):
+        
         # time horizon has to be premade for this to work
 
         self.point = 0

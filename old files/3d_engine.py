@@ -1,26 +1,28 @@
 ''' 
 prototypr idea #1 for math 154 fproj 
 
-base template
+source for 3d model: https://github.com/alecjacobson/common-3d-test-models/blob/master/data/rocker-arm.obj
 '''
 import pygame, random, os, sys, math
 import numpy as np 
 import sympy as sp
+from convert import *
 
 pygame.init()
 
-scrx, scry = (500,500)
+scrx, scry = (1000,700)
 
 window = pygame.display.set_mode((scrx, scry))
 pygame.clock = pygame.time.Clock()
 pygame.display.set_caption('Prototype Game')
 
 
-size = 10
+size = 25
        
 # p = (x,y)
-def point(p):
-    pygame.draw.rect(window, 'white', ((p[0]-size/2,p[1]-size/2),(size,size)))
+def point(p,color):
+    pygame.draw.rect(window, (color[0],color[1],color[2]), ((p[0]-size/2,p[1]-size/2),(size,size)))
+    # pygame.draw.circle(window, (color[0],color[1],color[2]), (p[0]-size/2,p[1]-size/2),size)
 
 def screen(p):
     point = ((p[0] + 1)/2 * scrx, (1-(p[1] + 1)/2) * scry)
@@ -29,6 +31,7 @@ def screen(p):
 def project(p3d):
     point_3d = (p3d[0]/p3d[2], p3d[1]/p3d[2])
     return point_3d
+    
 
 def translate_x(p3d, dx):
     point_3d = (p3d[0] + dx, p3d[1], p3d[2])
@@ -37,12 +40,6 @@ def translate_x(p3d, dx):
 def translate_z(p3d, dz):
     point_3d = (p3d[0], p3d[1], p3d[2] + dz)
     return point_3d
-
-def translates(p3d, d, ax):
-    if ax == 'x':
-        translate_x(p3d,d)
-    else:
-        translate_z(p3d,d)
 
 
 def rotate_xz(p3d, angle):
@@ -61,72 +58,47 @@ def rotate_yz(p3d,angle):
     )
     return point_3d
 
-def rotates(p3d, angle, ax):
-    if ax == 'xz':
-        return rotate_xz(p3d, angle)
-    if ax == 'yz':
-        return rotate_yz(p3d, angle)
 
 
 def line(p1, p2):
     pygame.draw.line(window, 'white', p1, p2)
 
-vertices = [
-    (0.25,0.25,0.25),
-    (-0.5,0.25,0.25),
-    (-0.25,-0.5,0.25),
-    (0.25,-0.25,0.25),
+# vertices = []
 
-    (0.25,0.5,-0.25),
-    (-0.25,0.25,-0.25),
-    (-0.25,-0.25,-0.25),
-    (0.5,-0.25,-0.25),
-
-    (0.5,0.5,0.25),
-    (0.75,0.25,-0.25)
-]
-
-faces = [
-    [0,1,2,3],
-    [4,5,6,7],
-    [0,4],
-    [1,5],
-    [2,6],
-    [3,7],
-    [7,8],
-    [8,9,0]
-]
+# faces = []
 
 
 def game():
     dt = 1/60
-    dz = 1
+    dz = 0.1
     angle = 0
-    rotate = 0
-    zoom = 0
+    rotate = 0.7
+    zoom = 1
+    i = 0
 
     while True:
         window.fill('black')
         
         # render vertices
         for v in vertices:
-            point(screen(project(translates(rotate_xz(v, angle), dz, axe))))
+            # point(screen(project(translate_z(rotate_xz(v, angle),dz))),[255,255,255])
+            point(screen(project(translate_z(rotate_xz(v, angle),dz))),[abs(v[0]*255),abs(v[1]*255),abs(v[2]*255)])
 
-        # render wireframe
+        # print(len(faces))
         # for f in faces:
-        #     for i in range(len(f)):
+        #     for i in range(len(f)):    
         #         a = vertices[f[i]]
         #         b = vertices[f[(i+1)%len(f)]]
                 
-        #         line(screen(project(translate_z(rotate_xz(a, angle),dz))), screen(project(translate_z(rotate_xz(b, angle),dz))))
+        #         line(screen(project(translate_z(rotate_yz(a, angle),dz))), screen(project(translate_z(rotate_xz(b, angle),dz))))
 
         # dz += 1 * dt
 
         if rotate:
-            angle += math.pi * dt * rotate
-
-        if zoom:
-            dz += 1 * dt * zoom
+            angle += math.pi * dt * rotate/10
+        
+        # if zoom:
+            # dz += 1 * dt * zoom
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -138,54 +110,55 @@ def game():
                         rotate = 0
                     else:
                         rotate = 1
-                        axis = 'yz'
+                        # axis = 'yz'
                 if event.key == pygame.K_s:
                     if rotate:
                         rotate = 0
                     else:
                         rotate = -1
-                        axis = 'yz'
+                        # axis = 'yz'
                 if event.key == pygame.K_d:
                     if rotate:
                         rotate = 0
                     else:
                         rotate = 1
-                        axis = 'xz'
+                        # axis = 'xz'
                 if event.key == pygame.K_a:
                     if rotate:
                         rotate = 0
                     else:
                         rotate = -1
-                        axis = 'xz'
+                        # axis = 'xz'
                 
                 if event.key == pygame.K_j:
                     if zoom:
                         zoom = 0
                     else:
                         zoom = 1
-                        axe = 'z'
+                        # axe = 'z'
                 if event.key == pygame.K_u:
                     if zoom:
                         zoom = 0
                     else:
                         zoom = -1
-                        axe = 'z'
+                        # axe = 'z'
                 if event.key == pygame.K_h:
                     if zoom:
                         zoom = 0
                     else:
                         zoom = 1
-                        axe = 'x'
+                        # axe = 'x'
                 if event.key == pygame.K_k:
                     if zoom:
                         zoom = 0
                     else:
                         zoom = -1
-                        axe = 'x'
+                        # axe = 'x'
                     
 
 
         pygame.display.update()
         pygame.clock.tick(60)
+        pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
 
 game()

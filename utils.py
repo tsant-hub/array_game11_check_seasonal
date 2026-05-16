@@ -47,6 +47,7 @@ def debug_menu(state, window, viewport, market):
         
         window.blit(text_viewui.render(f'Ann. Yield (mu): {market.mu}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+150))
         window.blit(text_viewui.render(f'Vol.(sigma): {market.sigma}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+175))
+        window.blit(text_viewui.render(f'Latest Price Level: {(market.point*10)//1}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+200))
 
         # window.blit(text_viewui.render(f'Buy: {bet}' if bet>=0 else f'Sell: {-bet}', False, colors['ui']), (scrx/2-viewport.width+25, scry*0.1+225))
 
@@ -79,6 +80,10 @@ def show_boundaries(state, window, viewport):
 
 class Button():
     def __init__(self, pos, size, text, mode):
+        '''
+        Button Class
+        Description: The blueprint for button objects in the game. Handles button rendering, update, and logic.
+        '''
         self.surface = pygame.Surface(size)
         self.pos = pos
         self.centered_pos = (pos[0]-self.surface.width/2, pos[1]-self.surface.height/2)  # pos is a 2-item list
@@ -89,6 +94,10 @@ class Button():
         self.mode = mode    # either hold or click
         
     def render(self, surf):
+        '''
+        Render Function
+        Description: Renders the button to a specified surface with a position specified in the class initialization.
+        '''
         self.surface.fill(colors['bg'])
         pygame.draw.rect(self.surface, self.color, self.rect, width=outline_width)
         self.surface.blit(self.text, ((self.surface.width-self.text.width)/2,(self.surface.height-self.text.height)/2))
@@ -235,13 +244,13 @@ class NewsBox(TextBox):
                     if i + self.entry > len(latest) - 1:
                         self.entry = len(latest) - 1-i
                     current = latest[i+self.entry]
-                    txt = text_viewui.render(f'{str(current[5])[:50]}',False,colors['ui'],wraplength=self.size[0]-190)
+                    txt = text_viewui.render(f'{str(current[5])[:40]}',False,colors['ui'],wraplength=self.size[0]-190)
                     dy = text_viewui.render(str(current[0]),False,colors['ui'])
                     
                     self.surface.blit(txt,(100,40+dy.height*i))
                     self.surface.blit(dy,(25,40+dy.height*i))
             else:
-                self.surface.blit(text_dash.render('No events as of the moment',False, colors['ui']))
+                self.surface.blit(text_dash.render('No events as of the moment',False, colors['ui']),(100,40))
         
             self.surface.blit(text_main.render('History',False, colors['main'] if self.message.width>0 else colors['text']), (220,-5))
             

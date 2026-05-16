@@ -47,9 +47,9 @@ pygame.clock = pygame.time.Clock()
 pygame.display.set_caption('DEATH CAPITAL, INC.')
 
 # for testing purposes
-# SEED = np.random.randint(0,1000000)
-# np.random.seed(SEED)
-SEED = np.random.seed(278118)
+SEED = np.random.randint(0,1000000)
+np.random.seed(SEED)
+# SEED = np.random.seed(921731)
 print(f'GAME SEED: {SEED}')
 
 viewport = Viewport()
@@ -57,8 +57,54 @@ trade = Trade(money)
 market = Market(1000)
 newsbox = NewsBox((60,viewport.pos[1]+viewport.height+45),(630,150))
 
-phenomena = Event(trade, market, newsbox)
+phenomena = Event(trade, market, newsbox,viewport)
 
+''' title screen'''
+def start():
+    pass
+
+''' endings '''
+def truebad_end():
+    pygame.mixer.music.load(os.path.join('assets','audios','truebad_end.mp3'))
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play()
+    while True:
+        window.fill(colors['bg'])
+
+        
+
+        window.blit(text_main.render('True Bad End',False,colors['main']), (scrx/2,scry/2))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()   
+                market.graph()
+                sys.exit()
+
+        pygame.display.update()
+        pygame.clock.tick(60)
+        pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
+
+def bad_end():
+    pygame.mixer.music.load(os.path.join('assets','audios','bad_end.mp3'))
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play()
+    while True:
+        window.fill(colors['bg'])
+
+        window.blit(text_main.render('Bad End',False,colors['main']), (scrx/2,scry/2))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()   
+                market.graph()
+                sys.exit()
+
+        pygame.display.update()
+        pygame.clock.tick(60)
+        pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
+
+''' main game'''
 def game():
     debug_state = False         # ctrl + d
     boundaries_state = False    # ctrl + b
@@ -71,6 +117,20 @@ def game():
         market.update()
         trade.update(viewport.y_vals[-1])
         newsbox.update(occurence)
+
+        # events here happen every update
+        if (viewport.interval - pygame.time.get_ticks()) <= 0:
+            # update the viewport
+            viewport.interval = pygame.time.get_ticks() + interval
+            viewport.update(market.gen_points())
+            
+            
+            
+            phenomena.day+=1
+            occurence = phenomena.select()
+            phenomena.update()
+            print(market.mu, phenomena.market.mu, phenomena.regular_mu)
+            updateCSV()
 
         
         trade.render(window)
@@ -85,20 +145,21 @@ def game():
         # time bar
         pygame.draw.rect(window, colors['ui'], pygame.Rect((viewport.pos[0], scry/20),((viewport.interval - pygame.time.get_ticks())/(2*interval/1000),10)))
     
-        # events here happen every update
-        if (viewport.interval - pygame.time.get_ticks()) <= 0:
-            # update the viewport
-            viewport.interval = pygame.time.get_ticks() + interval
-            viewport.update(market.gen_points())
-            
-            
-            
-            phenomena.day+=1
-            occurence = phenomena.select()
-            phenomena.update()
-            print(market.mu, phenomena.market.mu, phenomena.regular_mu)
-            updateCSV()
-            
+        
+        ''' ending check '''
+        if not phenomena.end:
+            pass
+        else:
+            match phenomena.end:
+                case 1:
+                    return truebad_end()
+                case 2:
+                    return bad_end()
+                case 3:
+                    pygame.quit()   
+                    market.graph()
+                    sys.exit()
+
 
         ''' text printing '''
         com_name = text_main.render('DEATH CAPITAL, INC.',False, colors['main'])
@@ -113,7 +174,6 @@ def game():
         pygame.draw.rect(window,colors['main'],pygame.Rect((viewport.pos[0]-outline_width,viewport.pos[1]-outline_width),(viewport.width+2*outline_width,viewport.height+2*outline_width)),width=outline_width) 
         
         newsbox.render(window)      # has to come after the outline drawing
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -131,7 +191,7 @@ def game():
                 if event.key == pygame.K_q:
                     market.sigma -= 0.001
             
-# Fixed? zoom scaling
+                # Fixed? zoom scaling
                 # if event.key == pygame.K_j and viewport.view_height > 100:
                 #     viewport.scale_y(-10)
                 # if event.key == pygame.K_k and viewport.view_height < viewport.max_view_height:

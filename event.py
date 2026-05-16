@@ -14,7 +14,6 @@ PLAN
 
 - EVENTS
     - ATTRIBUTES
-        - level: 1,2, or 3
         - conditions for proc
         - change in mu
         - change in sigma
@@ -42,7 +41,7 @@ from utils import *
 
 
 class Event():
-    def __init__(self, trade, market, newsbox):
+    def __init__(self, trade, market, newsbox,viewport):
         ''' 
         << Event Documentation here >>>
         Name:
@@ -55,19 +54,26 @@ class Event():
         self.trade = trade  # calls a copy of the trade class instance
         self.market = market
         self.newsbox = newsbox
+        self.viewport = viewport
 
         # event entry: [name, type, probability, trigger decision(bool), msg text, duration]
         self.events = np.array([
             ['','', 1000, False, '',1],
-            ['Inheritance', 'Regular', 30, False, 'Your deceased kin left you $100,000!',1],
-            ['Pickpocket', 'Regular', 50, False, 'Someone pickpocketed you $1000!',1],
-            ['Billiards', 'Regular', 200, True, 'Your friends invite you to billiards.',2],
             ['Market Rise', 'Economy', 100, False, 'Market price is predicted to rise',10],
-            ['Bond Yields Fall', 'Economy', 50, False, 'Government bond yields fall, investors flock to invest into stock.',15],
-            ['Company Increases Interest Rates', 'Economy', 50, False, 'Company has increased its interest rates to attract investors.',84],
-            ['Government Increased Taxes','Economy', 10, False, 'Due to economic downturn, the government increases its taxes permanently.',1260],
-            ['US Raises Tariffs','Economy', 100, False, 'US Government increases tariffs.', 63],
-            ['Death of the Owner', 'Rare', 5, False,'The founder of the company died.', 84]
+            ['Market Fall', 'Economy', 100, False, 'Market price is predicted to fall',10],
+            ['Market Jump', 'Economy', 50, False, 'Market Rised Abruptly',1],
+            ['Market Crash', 'Economy', 50, False, 'Market Crashed',1],
+            ['True Bad End', 'Ending', 0, True, 'Begin nuclear annihilation?',2],
+            ['Bad End', 'Ending', 0, True, 'Someone is knocking at your door. Do you open?',2],
+            ['Good End', 'Ending', 0, True, 'The only way to win is to not play. End the game?',2],
+            ['Inheritance', 'Regular', 5, False, 'Your deceased kin left you $100,000!',1],
+            ['Pickpocket', 'Regular', 0, False, 'Someone pickpocketed you $1000!',1],
+            ['Billiards', 'Regular', 100, True, 'Your friends invite you to billiards.',2],
+            ['Bond Yields Fall', 'Economy', 0, False, 'Government bond yields fall, investors flock to invest into stock.',15],
+            ['Company Increases Interest Rates', 'Economy', 0, False, 'Company has increased its interest rates to attract investors.',84],
+            ['Government Increased Taxes','Economy', 0, False, 'Due to economic downturn, the government increases its taxes permanently.',1260],
+            ['US Raises Tariffs','Economy', 0, False, 'US Government increases tariffs.', 63],
+            ['Death of the CEO', 'Rare', 0, False,'The CEO of the company died.', 84],
 
             ], dtype='object')
 
@@ -75,6 +81,9 @@ class Event():
 
         self.weights = 0
         self.day = DAY
+        self.end = 0
+        self.lock = 0
+        self.sin = False
 
         # base levels to go back to after short-term things
         self.regular_mu = self.market.mu
@@ -83,17 +92,48 @@ class Event():
     ''' back end stuff '''
     def select(self):
         # reinitialize stuff
-        self.trade.render_dash = True
-        self.trade.render_butt = True
+        if not self.lock:
+            self.trade.render_dash = True
+            self.trade.render_butt = True
+        else:
+            self.trade.render_dash = False
+            self.trade.render_butt = False
         
         # random selection
         self.weights = list(self.events[:,2].copy()/sum(self.events[:,2]))
         indices = [i for i in range(len(self.events))]
         rng = np.random.choice(indices, p=self.weights)
+
+        # specific event checking
+        try:
+            numpa_ver = np.array(self.event_list)[:,0]
+        except:
+            numpa_ver = np.array([])
+
+        check = [0]
+        match rng:
+            # so that certain events won't be triggered if a certain event is already running
+            case 1:
+                check.extend([2,3,4])
+            case 2:    
+                check.extend([1,3,4])
+            case 3:
+                if self.day < 100:
+                    rng = np.random.choice(indices, p=self.weights)
+            case 4:
+                if self.day < 100:
+                    rng = np.random.choice(indices, p=self.weights)
+            case 5:
+                check.extend([10]) 
+
+        if numpa_ver.size>0: 
+            for i in check:
+                if i in numpa_ver:
+                    rng = np.random.choice(indices, p=self.weights)
         
-        # need to fix vvv para secure nga indi na siya magsulit; cant have two instances of a function running at once
-        if self.event_list and rng in self.event_list[:][0]:
-            rng = np.random.choice(indices, p=self.weights)
+        # dont repeat events if they are already in the event list
+        if self.event_list and rng in numpa_ver:
+            return self.select()
         
         if rng > 0:
             # self.invoke(rng)
@@ -103,7 +143,30 @@ class Event():
         return self.events[rng]
 
     def update(self):
+        self.market_level = (self.market.output[-1]*10)//1
         self.event_list = [x for x in self.event_list if x[1] > 0]
+        
+        # bad end handling
+        global money
+        if self.trade.balance != money:
+            self.sin = True
+
+        ''' ending handling '''
+        # true bad end
+        if self.day > 100 and self.trade.balance >= 1000 and (self.lock==0 or self.lock==1):
+            self.lock = 1
+            self.events[5,2] = 100000000
+        # bad end
+        if self.day > 100 and self.trade.balance <= 100000 and (self.lock==0 or self.lock==2):
+            self.lock = 2
+            self.events[6,2] = 100000000
+        if self.day > 100 and self.sin==False and (self.lock==0 or self.lock==3):
+            self.lock = 3
+            self.events[7,2] = 100000000
+            
+            
+        # elif self.day > 0  and self.trade.balance 
+
 
         for evnt in self.event_list:
             if evnt[1] > 0:
@@ -118,31 +181,104 @@ class Event():
 
 
 
+
     ''' events framework '''
     def invoke(self, num, remaining, decision=None):
+        print(num)
         match num:
             case 0:
                 pass
             case 1:
-                self.inheritance()
-            case 2:
-                self.pickpocket()
-            case 3:
-                self.billiards(decision)        
-            case 4:
                 self.market_rise(remaining)
+            case 2:
+                self.market_fall(remaining)
+            case 3:
+                self.market_crash()
+            case 4:
+                self.market_jump()
             case 5:
-                self.bonds_fall(remaining)
+                self.ending_truebad(decision)
             case 6:
-                self.rates_increase(remaining)
+                self.ending_bad(decision)
             case 7:
-                self.tax_increase()
+                self.ending_good(decision)
             case 8:
-                self.tariffs_increase(remaining)
+                self.inheritance()
             case 9:
+                self.pickpocket()
+            case 10:
+                self.billiards(decision)        
+            case 11:
+                self.bonds_fall(remaining)
+            case 12:
+                self.rates_increase(remaining)
+            case 13:
+                self.tax_increase()
+            case 14:
+                self.tariffs_increase(remaining)
+            case 15:
                 self.founder_death(remaining)
 
-    
+    def market_rise(self, remaining):
+        ''' 
+        Name: Market Rise
+        Description: Market price is predicted to rise.
+        Probability: 10/1000
+        Trigger Condition: By chance. Lessens as you become evil
+        End Condition: After 10 days
+
+        DEBUG EVENT
+        '''
+        self.market.mu += ((self.market.mu)/(remaining) * (self.market_level/1000))
+        if remaining <= 1:
+            self.market.mu = self.regular_mu
+
+    def market_fall(self, remaining):
+        ''' 
+        Name: Market Fall
+        Description: Market price is predicted to rise.
+        Probability: 10/1000
+        Trigger Condition: By chance. Lessens as you become evil
+        End Condition: After 10 days
+
+        DEBUG EVENT
+        '''
+        if remaining == 10:
+            self.market.mu *= -1
+        self.market.mu += ((self.market.mu)/(remaining) * (self.market_level/1000))
+         
+        if remaining <= 1:
+            self.market.mu = abs(self.market.mu)
+            self.market.mu = self.regular_mu
+
+    def market_jump(self):
+        ''' 
+        Name: Market Fall
+        Description: Market price is predicted to rise.
+        Probability: 10/1000
+        Trigger Condition: By chance. Lessens as you become evil
+        End Condition: After 10 days
+
+        DEBUG EVENT
+        '''
+        self.trade.render_dash = False
+        self.trade.render_butt = False
+        self.market.output[-1] *= 1.7
+
+    def market_crash(self):
+        ''' 
+        Name: Market Fall
+        Description: Market price is predicted to rise.
+        Probability: 10/1000
+        Trigger Condition: By chance. Lessens as you become evil
+        End Condition: After 10 days
+
+        DEBUG EVENT
+        '''
+        self.trade.render_dash = False
+        self.trade.render_butt = False
+        self.market.output[-1] *= 0.7
+
     def inheritance(self):
         ''' 
         Name: Inheritance
@@ -175,19 +311,7 @@ class Event():
             self.trade.render_dash = False
             self.trade.render_butt = False
 
-    def market_rise(self, remaining):
-        ''' 
-        Name: Market Rise
-        Description: Market price is predicted to rise.
-        Probability: 10/1000
-        Trigger Condition: By chance. Lessens as you become evil
-        End Condition: After 10 days
-
-        DEBUG EVENT
-        '''
-        self.market.mu += (self.market.mu)/(remaining*100)
-        if remaining <= 0:
-            self.market.mu = self.regular_mu
+  
 
     def bonds_fall(self, remaining):
         """
@@ -210,7 +334,7 @@ class Event():
                             decide to increase rates, which affect volatility and annual yield
         End Condition: After 84 days, 4 working months, companies return to original interest rate after a few months
         """
-        if self.market.mu<=0.0009:
+        if (self.market.output[-1]*10)//1 <= 500:
             self.market.sigma += 0.003
             self.market.mu += ((self.market.mu)/(remaining*100))*1.01
             if remaining <= 0:
@@ -229,7 +353,7 @@ class Event():
         End Condition: None. Goes on until the games end (1260 days)
         """
 
-        self.market.mu = self.market.mu-0.0001
+        self.regular_mu -= 0.0001
 
     def tariffs_increase(self, remaining):
         """
@@ -240,7 +364,7 @@ class Event():
         End Condition: Ends after 3 working months, 63 days.
         """
 
-        self.market.mu = self.market.mu-(0.000001*remaining)
+        self.market.mu -= (0.0001)
         if remaining<=0:
             self.market.mu = self.regular_mu
 
@@ -257,4 +381,37 @@ class Event():
             self.market.sigma = self.regular_sigma
 
 
+
+
+
+    ''' endings '''
+    def ending_truebad(self, decision):
+        ''' 
+        Name: True Bad Ending
+        '''
+        if decision:
+            self.end = 1
+        else:
+            self.event_list.pop()
+            self.newsbox.decision = None
+
+    def ending_bad(self, decision):
+        ''' 
+        Name: Bad Ending
+        '''
+        if decision:
+            self.end = 2
+        else:
+            self.event_list.pop()
+            self.newsbox.decision = None
+
+    def ending_good(self, decision):
+        ''' 
+        Name: Good Ending
+        '''
+        if decision:
+            self.end = 3
+        else:
+            self.event_list.pop()
+            self.newsbox.decision = None
 
