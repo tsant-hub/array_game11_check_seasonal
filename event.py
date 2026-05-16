@@ -63,7 +63,13 @@ class Event():
             ['Pickpocket', 'Regular', 50, False, 'Someone pickpocketed you $1000!',1],
             ['Billiards', 'Regular', 200, True, 'Your friends invite you to billiards.',2],
             ['Market Rise', 'Economy', 100, False, 'Market price is predicted to rise',10],
-        ], dtype='object')
+            ['Bond Yields Fall', 'Economy', 50, False, 'Government bond yields fall, investors flock to invest into stock.',15],
+            ['Company Increases Interest Rates', 'Economy', 50, False, 'Company has increased its interest rates to attract investors.',84],
+            ['Government Increased Taxes','Economy', 10, False, 'Due to economic downturn, the government increases its taxes permanently.',1260],
+            ['US Raises Tariffs','Economy', 100, False, 'US Government increases tariffs.', 63],
+            ['Death of the Owner', 'Rare', 5, False,'The founder of the company died.', 84]
+
+            ], dtype='object')
 
         self.event_list = []
 
@@ -125,6 +131,17 @@ class Event():
                 self.billiards(decision)        
             case 4:
                 self.market_rise(remaining)
+            case 5:
+                self.bonds_fall(remaining)
+            case 6:
+                self.rates_increase(remaining)
+            case 7:
+                self.tax_increase()
+            case 8:
+                self.tariffs_increase(remaining)
+            case 9:
+                self.founder_death(remaining)
+
     
     def inheritance(self):
         ''' 
@@ -168,12 +185,76 @@ class Event():
 
         DEBUG EVENT
         '''
-        # fix the market mu
-        self.market.mu += (self.market.mu)/(remaining*5)
-        if remaining <= 1:
+        self.market.mu += (self.market.mu)/(remaining*100)
+        if remaining <= 0:
             self.market.mu = self.regular_mu
 
+    def bonds_fall(self, remaining):
+        """
+        Name: Bond yields fall
+        Description: Government bond yields fall, investors flock to invest into the stock.
+        Probability: 80/1000
+        Trigger Condition: By chance. Fluctuations depend on the government and how they dictate bond prices.
+        End Condition: After 15 days
+        """
+        self.market.mu += ((self.market.mu)/(remaining*100))*0.9
+        if remaining <= 0:
+            self.market.mu = self.regular_mu
 
+    def rates_increase(self, remaining):
+        """
+        Name: Company Increases Interest Rates
+        Description: Company has increased its interest rates to attract investors.
+        Probability: 50/1000
+        Trigger Condition: Company sees that annual yields are not going so great,
+                            decide to increase rates, which affect volatility and annual yield
+        End Condition: After 84 days, 4 working months, companies return to original interest rate after a few months
+        """
+        if self.market.mu<=0.0009:
+            self.market.sigma += 0.003
+            self.market.mu += ((self.market.mu)/(remaining*100))*1.01
+            if remaining <= 0:
+                self.market.mu = self.regular_mu
+                self.market.sigma = self.regular_sigma
+
+
+    def tax_increase(self):
+        """
+        Name: US Government Increase Taxes
+        Description: Due to economic downturn, the government increases its taxes permanently.
+        Thus, stock interest rates and stock yield decrease.
+
+        Probability: 20/1000
+        Trigger Condition: Random. Government decides when tax increases are necessary to fill up treasury.
+        End Condition: None. Goes on until the games end (1260 days)
+        """
+
+        self.market.mu = self.market.mu-0.0001
+
+    def tariffs_increase(self, remaining):
+        """
+        Name: US Raises Tariffs
+        Description: US Government increases tariffs.
+        Probability: 100/1000
+        Trigger Condition: Random
+        End Condition: Ends after 3 working months, 63 days.
+        """
+
+        self.market.mu = self.market.mu-(0.000001*remaining)
+        if remaining<=0:
+            self.market.mu = self.regular_mu
+
+    def founder_death(self, remaining):
+        """
+        Name: Death of the founder.
+        Description: The founder of the company died.
+        Probability: 5/1000
+        Trigger Condition: Random
+        End Condition: Ends after 4 working months, 84 days.
+        """
+        self.market.sigma += 0.0005
+        if remaining<=0:
+            self.market.sigma = self.regular_sigma
 
 
 
