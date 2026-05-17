@@ -19,12 +19,9 @@ class Viewport():
         self.surface = pygame.Surface((self.width, self.height))
         
         self.max_view_height = 10**4
+        self.view_height = 2100
 
-#I thought 2100 was wayyy too big of a zoom to see any significant change, and also since zoom scales by 100 now and not 1000
-        # self.view_height = 2100
-        self.view_height = 500
-
-        self.max_view_length = 252
+        self.max_view_length = 250
         self.view_length = 15
         
         
@@ -57,10 +54,7 @@ class Viewport():
         # render the y marker points
         y_marker_surface = pygame.Surface((100,scry/2+40))
         y_marker_surface.fill(colors['bg'])
-
-        #Adjusted to fix y zoom scaling
-        # zoom = (self.view_height)/1000
-        zoom = (self.view_height)/100
+        zoom = (self.view_height-100)/1000
         if zoom <= 0:
             divs = int(self.max_view_height/400)
             spread = 0.55
@@ -110,22 +104,20 @@ class Viewport():
         # surface.blit(x_marker_surface, (self.pos[0]-25,self.pos[1]+self.height))
 
     
-        for i in range(0, len(self.x_vals), 0**(len(self.x_vals)//10)+len(self.x_vals)//10):
+        for i in range(len(self.x_vals)):
             # add a big view / small view approach maybe?            
-            # if i%10!=0 and i!=len(self.x_vals)-1:
-            #     continue
-            # elif (self.view_length > 50) and (i%10!=0) and (i!=len(self.x_vals)-1):
-            #     continue
-            # elif i%5!=0 and (i!=len(self.x_vals)-1):
-            #     continue
+            if (self.view_length > 100) and (i%15!=0) and (i!=len(self.x_vals)-1):
+                continue
+            elif (self.view_length > 50) and (i%10!=0) and (i!=len(self.x_vals)-1):
+                continue
+            elif (self.view_length > 15) and (i%5!=0) and (i!=len(self.x_vals)-1):
+                continue
+            
             
             mark = text_viewui.render(f'{self.total_points-i}', False, colors['ui'])
             pos = self.x_vals[-i-1]-mark.size[0]/2+25,10
-            x_marker_surface.blit(mark, pos)
 
-            #Debugging
-            # print(len(self.x_vals),0**(len(self.x_vals)//9)+len(self.x_vals)//9)
-            # print(np.array(range(0, len(self.x_vals), 0**(len(self.x_vals)//10)+len(self.x_vals)//10)))
+            x_marker_surface.blit(mark, pos)
         
         surface.blit(x_marker_surface, (self.pos[0]-25,self.pos[1]+self.height))
     
@@ -155,7 +147,6 @@ class Viewport():
         self.filter_y_vals = self.y_vals[:-(self.view_length+1):-1][::-1]
         self.x_vals = np.linspace(0, int(self.width), len(self.filter_y_vals))
 
-        #for some reason the game works fine after if I comment this line 
         pygame.draw.line(self.surface, colors['ui'], (0, self.convert_point(self.height/2)), (self.width, self.convert_point(self.height/2)))
 
         self.processed_vals = self.convert_point(self.filter_y_vals)
@@ -167,15 +158,36 @@ class Viewport():
         # print(self.y_vals)
     
     def scale_y(self, zom):
+
+        # Occam's Razor 😮
+
+        # self.surface.fill(colors['bg'])        
+        # if (self.view_height >= 0) and (self.view_height <= self.max_view_height):
+        #     self.view_height += (zom * self.max_view_height/100)
+        #     self.zoom = self.height/self.view_height
+        #     print(1)
+        # elif self.view_height < 0 :
+        #     self.view_height = self.max_view_height/100
+        #     print(2)
+        # elif self.view_height > self.max_view_height:
+        #     self.view_height = self.max_view_height - self.max_view_height/100
+        #     print(3)
         self.surface.fill(colors['bg'])        
-    # Needed to adjust denominator to fix zoom y zoom scaling
-        # self.view_height += (zom * self.max_view_height/1000) 
-        self.view_height += (zom * self.max_view_height/100) 
+        self.view_height += (zom * self.max_view_height/100)
         self.zoom = self.height/self.view_height
 
     def scale_x(self, zom):
         self.surface.fill(colors['bg'])
         self.view_length += zom
+
+        # Incorporated lapaw error catching conditionals into keybind conditionals instead
+
+        # if 5 < self.view_length < self.max_view_length:
+        #     self.view_length += zom
+        # elif self.view_length == 5 and zom > 0:
+        #     self.view_length += zom
+        # elif self.view_length == 51 and zom < 0:
+        #     self.view_length -= 1
 
     def translate(self, val):
         self.surface.fill(colors['bg'])

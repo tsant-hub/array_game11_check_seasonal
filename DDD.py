@@ -6,22 +6,22 @@ source for 3d model: https://github.com/alecjacobson/common-3d-test-models/blob/
 import pygame, random, os, sys, math
 import numpy as np 
 import sympy as sp
+from defaults import *
 from convert import *
 
 pygame.init()
-
-scrx, scry = (1000,700)
 
 window = pygame.display.set_mode((scrx, scry))
 pygame.clock = pygame.time.Clock()
 pygame.display.set_caption('Prototype Game')
 
-
+# 5 for dots
+# 25 for water color effect
 size = 25
        
 # p = (x,y)
-def point(p,color):
-    pygame.draw.rect(window, (color[0],color[1],color[2]), ((p[0]-size/2,p[1]-size/2),(size,size)))
+def point(p,color,surf):
+    pygame.draw.rect(surf, (color[0],color[1],color[2]), ((p[0]-size/2,p[1]-size/2),(size,size)))
     # pygame.draw.circle(window, (color[0],color[1],color[2]), (p[0]-size/2,p[1]-size/2),size)
 
 def screen(p):
@@ -60,45 +60,66 @@ def rotate_yz(p3d,angle):
 
 
 
-def line(p1, p2):
-    pygame.draw.line(window, 'white', p1, p2)
+def line(p1, p2,surf):
+    pygame.draw.line(surf, 'white', p1, p2)
 
 # vertices = []
 
 # faces = []
+dt = 1/60
+dz = 0.01
+angle = 0
+rotate = 0.7
+zoom = 1
+def render(surf,zoom,rotate):
+    global angle
+    # global zoom
+    # global rotate
+    global vertices
+    global faces
+    global dz
+    global dt
+
+    # render vertices
+    for v in vertices:
+        # point(screen(project(translate_z(rotate_xz(v, angle),dz))),[255,255,255], surf)
+        point(screen(project(translate_z(rotate_xz(v, angle),dz))),[abs(v[0]*255),abs(v[1]*255),abs(v[2]*255)],surf)
+
+    # for f in faces:
+    #     for i in range(len(f)):
+    #         # print(f)
+    #         a = vertices[f[i]]
+    #         b = vertices[f[(i+1)%len(f)]]
+            
+    #         line(screen(project(translate_z(rotate_xz(a, angle),dz))), screen(project(translate_z(rotate_xz(b, angle),dz))),surf)
+
+    # dz += 1 * dt
+
+    if rotate:
+        angle += math.pi * dt * rotate/10
+    
+    if zoom:
+        dz += 0.05 * dt * zoom
+    
+    return dz
 
 
 def game():
-    dt = 1/60
-    dz = 0.1
-    angle = 0
-    rotate = 0.7
-    zoom = 1
+    global dt
+    global dz
+    global angle
+    global rotate
+    global zoom
     i = 0
+    # pygame.mixer.music.load(os.path.join('assets','audios','truebad_end.mp3'))
+    # pygame.mixer.music.set_volume(0.5)
+    # pygame.mixer.music.play()
 
     while True:
         window.fill('black')
+
+        render(window)
         
-        # render vertices
-        for v in vertices:
-            # point(screen(project(translate_z(rotate_xz(v, angle),dz))),[255,255,255])
-            point(screen(project(translate_z(rotate_xz(v, angle),dz))),[abs(v[0]*255),abs(v[1]*255),abs(v[2]*255)])
-
-        # print(len(faces))
-        # for f in faces:
-        #     for i in range(len(f)):    
-        #         a = vertices[f[i]]
-        #         b = vertices[f[(i+1)%len(f)]]
-                
-        #         line(screen(project(translate_z(rotate_yz(a, angle),dz))), screen(project(translate_z(rotate_xz(b, angle),dz))))
-
-        # dz += 1 * dt
-
-        if rotate:
-            angle += math.pi * dt * rotate/10
-        
-        # if zoom:
-            # dz += 1 * dt * zoom
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -161,4 +182,3 @@ def game():
         pygame.clock.tick(60)
         pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
 
-game()

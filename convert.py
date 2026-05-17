@@ -1,12 +1,10 @@
 import os
 
-model = open(os.path.join('old files','model.txt'))
-new_vertices = ''
-
+model = open(os.path.join('assets','3d',f'model.txt'))
 liz = model.readlines()
 vertices = []
 for line in liz:
-     if line[0] == 'v':
+    if line[0] == 'v':
         tring = line[2:len(line)-1]
         vertices.append(tring.split(' '))
 for i in range(len(vertices)):
@@ -15,18 +13,15 @@ for i in range(len(vertices)):
 
 faces = []
 for line in liz:
-     if line[0] == 'f':
+    if line[0] == 'f':
         tring = line[2:len(line)-1]
         faces.append(tring.split(' '))
 for i in range(len(faces)):
-    for j in range(3):
+    for j in range(len(faces[i])):
         faces[i][j] = int(faces[i][j])
     
-        
-
-
-
 model.close()
+
 
 # new = open(os.path.join('old files','new.txt'),'w')
 # for line in vertices:

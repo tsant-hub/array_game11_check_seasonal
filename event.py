@@ -61,8 +61,8 @@ class Event():
             ['','', 1000, False, '',1],
             ['Market Rise', 'Economy', 100, False, 'Market price is predicted to rise',10],
             ['Market Fall', 'Economy', 100, False, 'Market price is predicted to fall',10],
-            ['Market Jump', 'Economy', 50, False, 'Market Rised Abruptly',1],
             ['Market Crash', 'Economy', 50, False, 'Market Crashed',1],
+            ['Market Jump', 'Economy', 50, False, 'Market Rised Abruptly',1],
             ['True Bad End', 'Ending', 0, True, 'Begin nuclear annihilation?',2],
             ['Bad End', 'Ending', 0, True, 'Someone is knocking at your door. Do you open?',2],
             ['Good End', 'Ending', 0, True, 'The only way to win is to not play. End the game?',2],
@@ -139,6 +139,7 @@ class Event():
             # self.invoke(rng)
             EVENT_HISTORY.loc[len(EVENT_HISTORY)] = np.insert(self.events[rng],0, self.day)
             self.event_list.append(np.insert(self.events[rng,5],0,rng))
+            sound_news.play()
 
         return self.events[rng]
 
@@ -390,6 +391,7 @@ class Event():
         Name: True Bad Ending
         '''
         if decision:
+            pygame.mixer.stop()
             self.end = 1
         else:
             self.event_list.pop()
@@ -400,6 +402,7 @@ class Event():
         Name: Bad Ending
         '''
         if decision:
+            pygame.mixer.stop()
             self.end = 2
         else:
             self.event_list.pop()
@@ -410,7 +413,9 @@ class Event():
         Name: Good Ending
         '''
         if decision:
+            pygame.mixer.stop()
             self.end = 3
+            
         else:
             self.event_list.pop()
             self.newsbox.decision = None

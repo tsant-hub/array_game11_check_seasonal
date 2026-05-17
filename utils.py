@@ -13,11 +13,21 @@ from defaults import *
 
 pygame.init()
 
-
+# text initialization
 text_main: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=42)
 text_viewui = pygame.font.Font(os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=24)
 text_button: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=32)
 text_dash: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=32)
+
+# sound effects initialization
+sound_news = pygame.mixer.Sound(os.path.join('assets','sounds','news.mp3'))
+sound_button = pygame.mixer.Sound(os.path.join('assets','sounds','select_sound.mp3'))
+sound_start = pygame.mixer.Sound(os.path.join('assets','sounds','start_game.mp3'))
+
+sound_news.set_volume(0.7)
+sound_button.set_volume(0.7)
+sound_start.set_volume(0.7)
+
 
 # csv files
 # get the csv files cleared
@@ -107,6 +117,7 @@ class Button():
     def update(self):
         if self.mode == 'click':
             if self.surface.get_rect(center=(self.pos)).collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_just_pressed()[0]:
+                sound_button.play()
                 self.color = colors['button_pressed']
                 self.state = True
             else:

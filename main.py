@@ -26,13 +26,14 @@ To do:
     [/] return the seed from the random module so that pwede mareproduce ang states
     [/] player is able to bet on the stock market
     [/] events can happen + implementation of potential sources of infos
-    [ ] add the game speed and pausing
+    [/] add the game speed and pausing
     [ ] add visible tension meter; as well as hidden stress, badness, etc. meters
 [ ] add a title screen
 '''
 import pygame, random, os, sys
 import numpy as np 
 import sympy as sp
+import convert, DDD
 from defaults import *
 from utils import *
 from graph import *
@@ -40,17 +41,14 @@ from trade import *
 from market import *
 from event import *
 
+
 pygame.init()
 
 window = pygame.display.set_mode((scrx, scry))
 pygame.clock = pygame.time.Clock()
 pygame.display.set_caption('DEATH CAPITAL, INC.')
 
-# for testing purposes
-SEED = np.random.randint(0,1000000)
-np.random.seed(SEED)
-# SEED = np.random.seed(921731)
-print(f'GAME SEED: {SEED}')
+
 
 viewport = Viewport()
 trade = Trade(money)
@@ -60,45 +58,172 @@ newsbox = NewsBox((60,viewport.pos[1]+viewport.height+45),(630,150))
 phenomena = Event(trade, market, newsbox,viewport)
 
 ''' title screen'''
+button_start = Button((scrx/2,scry/2),(275,50),'Boot Trading System','click')
+button_credits = Button((scrx/2,scry/2+75),(250,50),'System Information','click')
 def start():
-    pass
-
-''' endings '''
-def truebad_end():
-    pygame.mixer.music.load(os.path.join('assets','audios','truebad_end.mp3'))
-    pygame.mixer.music.set_volume(0.4)
-    pygame.mixer.music.play()
+    '''
+    Start Screen Function
+    Description: Handles the start screen for the game
+    '''
+    dots = ''
     while True:
         window.fill(colors['bg'])
 
+        if (viewport.interval - pygame.time.get_ticks()) <= 0:
+            viewport.interval = pygame.time.get_ticks() + 500
+            dots += '.'
         
+        if len(dots) < 4:
+            text = text_main.render(f'Logging In{dots}',False,colors['main'])
+            window.blit(text, (scrx/2-text.width/2,scry/2-text.height/2))
+        else:
+            button_start.update()
+            button_credits.update()
+            if button_start.state:
+                sound_start.play()
+                return game()
+            
+            text = text_main.render('DEATH CAPITAL, INC.',False,colors['main'])
+            window.blit(text, (scrx/2-text.width/2,scry/2-text.height/2-100))
+            button_start.render(window)
+            button_credits.render(window)
 
-        window.blit(text_main.render('True Bad End',False,colors['main']), (scrx/2,scry/2))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()   
-                market.graph()
-                sys.exit()
+                shut_down()
+
+        pygame.display.update()
+        pygame.clock.tick(60)
+        pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
+
+# def credits():
+#     '''
+#     Credits Screen Function
+#     Description: Handles the start screen for the game
+#     '''
+#     dots = ''
+#     while True:
+#         if button_start.state:
+#             sound_start.play()
+#             return game()
+        
+#         text = text_main.render('DEATH CAPITAL, INC.',False,colors['main'])
+#         window.blit(text, (scrx/2-text.width/2,scry/2-text.height/2-100))
+
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 shut_down()
+
+#         pygame.display.update()
+#         pygame.clock.tick(60)
+#         pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
+
+
+def shut_down():
+    '''
+    Shut Down Functio; for styllistic exit
+    Description: For a styllistic shutting down of the system
+    '''
+    dots = ''
+    while True:
+        window.fill(colors['bg'])
+
+        # add credits scene here
+        text = text_main.render(f'Shutting Down{dots}',False,colors['main'])
+        window.blit(text, (scrx/2-text.width/2,scry/2-text.height/2))
+
+        if (viewport.interval - pygame.time.get_ticks()) <= 0:
+            viewport.interval = pygame.time.get_ticks() + 500
+            dots += '.'
+        
+        if len(dots) == 4:
+            pygame.quit()   
+            market.graph()
+            sys.exit()
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pass
+                
+
+        pygame.display.update()
+        pygame.clock.tick(60)
+        pygame.display.set_caption('')
+
+
+''' endings '''
+def truebad_end():
+    '''
+    True Bad Ending Function
+    Description: Handles the true bad ending for the game
+    '''
+    pygame.mixer.music.load(os.path.join('assets','audios','truebad_end.mp3'))
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play()
+
+    #for 3d
+    rotate = 0.7
+    zoom = 0
+    while True:
+        window.fill(colors['bg'])
+
+        dz = DDD.render(window,zoom,rotate)
+
+        if abs(dz) > 0.05:
+            zoom = 0
+        
+
+        
+        # add credits scene here
+        text = text_main.render('True Bad End\nDeath Capital Inc.\na Math 154 Final Project by Group Mayad',False,'white')
+        window.blit(text, (scrx/2-text.width/2,scry/2-text.height/2))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                shut_down()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    if zoom:
+                        zoom = 0
+                    elif not zoom and dz < 0.050833333333:
+                        zoom = 1
+                if event.key == pygame.K_s:
+                    if zoom:
+                        zoom = 0
+                    elif not zoom and dz > -0.050833333333:
+                        zoom = -1
+
+                if event.key == pygame.K_a:
+                    rotate *= -1
+                if event.key == pygame.K_d:
+                    rotate *= -1
+
+
 
         pygame.display.update()
         pygame.clock.tick(60)
         pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
 
 def bad_end():
+    '''
+    Bad End Function
+    Description: Handles the bad end screen for the game
+    '''
     pygame.mixer.music.load(os.path.join('assets','audios','bad_end.mp3'))
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play()
     while True:
         window.fill(colors['bg'])
 
-        window.blit(text_main.render('Bad End',False,colors['main']), (scrx/2,scry/2))
+        # add credits scene here
+        text = text_main.render('True Bad End\nDeath Capital Inc.\na Math 154 Final Project by Group Mayad',False,'white')
+        window.blit(text, (scrx/2-text.width/2,scry/2-text.height/2))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()   
-                market.graph()
-                sys.exit()
+                shut_down()
 
         pygame.display.update()
         pygame.clock.tick(60)
@@ -106,21 +231,35 @@ def bad_end():
 
 ''' main game'''
 def game():
+    '''
+    Main Game Function
+    Description: Handles the main game, calling on pygame backend updates and user input.
+    '''
+    # for testing purposes
+    SEED = np.random.randint(0,1000000)
+    np.random.seed(SEED)
+    # SEED = np.random.seed(921731)
+    print(f'GAME SEED: {SEED}')
+
+
     debug_state = False         # ctrl + d
     boundaries_state = False    # ctrl + b
     
-    # add a pause function
+    paused = False
 
     occurence = ['','', 100, False, '']   
+    
     while True:
         window.fill(colors['bg'])
+
         market.update()
         trade.update(viewport.y_vals[-1])
         newsbox.update(occurence)
 
         # events here happen every update
-        if (viewport.interval - pygame.time.get_ticks()) <= 0:
+        if not paused and (viewport.interval - pygame.time.get_ticks()) <= 0:
             # update the viewport
+            
             viewport.interval = pygame.time.get_ticks() + interval
             viewport.update(market.gen_points())
             
@@ -132,19 +271,16 @@ def game():
             print(market.mu, phenomena.market.mu, phenomena.regular_mu)
             updateCSV()
 
-        
         trade.render(window)
         viewport.draw(colors['main'])
         viewport.render(window)
-
-
+    
         # logo drawing on top right
         # pygame.draw.rect(window, 'red4', pygame.Rect((700, scry/20+15),((scrx-screen_margin)-700,305-(scry/20+15))))
         # window.blit(text_main.render('LOGO',False,colors['bg']),(((scrx-screen_margin+700)/2,(305)/2)))
         
         # time bar
         pygame.draw.rect(window, colors['ui'], pygame.Rect((viewport.pos[0], scry/20),((viewport.interval - pygame.time.get_ticks())/(2*interval/1000),10)))
-    
         
         ''' ending check '''
         if not phenomena.end:
@@ -177,9 +313,7 @@ def game():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()   
-                market.graph()
-                sys.exit()
+                shut_down()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w and not viewport.follow:
                     viewport.translate(1)
@@ -192,24 +326,24 @@ def game():
                     market.sigma -= 0.001
             
                 # Fixed? zoom scaling
-                # if event.key == pygame.K_j and viewport.view_height > 100:
-                #     viewport.scale_y(-10)
-                # if event.key == pygame.K_k and viewport.view_height < viewport.max_view_height:
-                #     viewport.scale_y(10)
                 if event.key == pygame.K_j and viewport.view_height > 100:
-                    viewport.scale_y(-1)
+                    viewport.scale_y(-10)
                 if event.key == pygame.K_k and viewport.view_height < viewport.max_view_height:
-                    viewport.scale_y(1)
+                    viewport.scale_y(10)
+                # if event.key == pygame.K_j and viewport.view_height > 100:
+                #     viewport.scale_y(-1)
+                # if event.key == pygame.K_k and viewport.view_height < viewport.max_view_height:
+                #     viewport.scale_y(1)
 
                 ''' modify x_scale to account for 252 trading days '''
+                # if event.key == pygame.K_u and viewport.view_length > 5:
+                #     viewport.scale_x(-5)
+                # if event.key == pygame.K_i and viewport.view_length < viewport.max_view_length:
+                #     viewport.scale_x(5)
                 if event.key == pygame.K_u and viewport.view_length > 5:
                     viewport.scale_x(-5)
                 if event.key == pygame.K_i and viewport.view_length < viewport.max_view_length:
                     viewport.scale_x(5)
-                # if event.key == pygame.K_u and viewport.view_length > 5:
-                #     viewport.scale_x(-10)
-                # if event.key == pygame.K_i and viewport.view_length < viewport.max_view_length:
-                #     viewport.scale_x(10)
 
                 if event.key == pygame.K_h:
                     # you can move this code to the viewport class blueprint if you want to make this more organized
@@ -227,8 +361,10 @@ def game():
                 
                 ''' time controls '''
                 if event.key == pygame.K_SPACE:
-                    time_stop = True
-                    # phenomena.inheritance()
+                    if not paused:
+                        paused = True
+                    else:
+                        paused = False
 
                 # debug tools
                 if (event.mod & pygame.KMOD_LCTRL) and (event.key == pygame.K_d):
@@ -250,4 +386,5 @@ def game():
         pygame.clock.tick(60)
         pygame.display.set_caption(f'DEATH CAPITAL, INC.      |      (FPS):{round(pygame.clock.get_fps())}')
 
-game()
+# game()
+start()
