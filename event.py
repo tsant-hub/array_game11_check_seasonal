@@ -67,13 +67,16 @@ class Event():
             ['Bad End', 'Ending', 0, True, 'Someone is knocking at your door. Do you open?',2],
             ['Good End', 'Ending', 0, True, 'The only way to win is to not play. End the game?',2],
             ['Inheritance', 'Regular', 5, False, 'Your deceased kin left you $100,000!',1],
-            ['Pickpocket', 'Regular', 0, False, 'Someone pickpocketed you $1000!',1],
+            ['Pickpocket', 'Regular', 50, False, 'Someone pickpocketed you $1000!',1],
             ['Billiards', 'Regular', 100, True, 'Your friends invite you to billiards.',2],
-            ['Bond Yields Fall', 'Economy', 0, False, 'Government bond yields fall, investors flock to invest into stock.',15],
-            ['Company Increases Interest Rates', 'Economy', 0, False, 'Company has increased its interest rates to attract investors.',84],
-            ['Government Increased Taxes','Economy', 0, False, 'Due to economic downturn, the government increases its taxes permanently.',1260],
-            ['US Raises Tariffs','Economy', 0, False, 'US Government increases tariffs.', 63],
-            ['Death of the CEO', 'Rare', 0, False,'The CEO of the company died.', 84],
+            ['Bond Yields Fall', 'Economy', 50, False, 'Government bond yields fall, investors flock to invest into stock.',15],
+            ['Company Increases Interest Rates', 'Economy', 50, False, 'Company has increased its interest rates to attract investors.',84],
+            ['Government Increased Taxes','Economy', 10, False, 'Due to economic downturn, the government increases its taxes permanently.',2],
+            ['US Raises Tariffs','Economy', 50, False, 'US Government increases tariffs.', 63],
+            ['Death of the CEO', 'Rare', 5, False,'The CEO of the company died.', 42],
+            ['Minimum Wage Hike', 'Economy', 10, False, 'The government raised minimum wage. Based on the IS-LM Model, stock prices increase.',1],
+             ['Company EPS decreases.', 'Rare', 50, False, 'The company earnings per share decrease based on the income statement.', 126],
+
 
             ], dtype='object')
 
@@ -154,14 +157,14 @@ class Event():
 
         ''' ending handling '''
         # true bad end
-        if self.day > 100 and self.trade.balance >= 1000 and (self.lock==0 or self.lock==1):
+        if self.day > 1260 and self.trade.balance >= 100000 and (self.lock==0 or self.lock==1):
             self.lock = 1
             self.events[5,2] = 100000000
         # bad end
-        if self.day > 100 and self.trade.balance <= 100000 and (self.lock==0 or self.lock==2):
+        if self.day > 1260 and self.trade.balance <= 100000 and (self.lock==0 or self.lock==2):
             self.lock = 2
             self.events[6,2] = 100000000
-        if self.day > 100 and self.sin==False and (self.lock==0 or self.lock==3):
+        if self.day > 1260 and self.sin==False and (self.lock==0 or self.lock==3):
             self.lock = 3
             self.events[7,2] = 100000000
             
@@ -219,6 +222,13 @@ class Event():
                 self.tariffs_increase(remaining)
             case 15:
                 self.founder_death(remaining)
+            case 16:
+                self.gen_income_increase()
+            case 17:
+                self.lower_eps(remaining)
+
+
+    ''' custom events '''
 
     def market_rise(self, remaining):
         ''' 
@@ -312,17 +322,15 @@ class Event():
             self.trade.render_dash = False
             self.trade.render_butt = False
 
-  
-
     def bonds_fall(self, remaining):
         """
         Name: Bond yields fall
         Description: Government bond yields fall, investors flock to invest into the stock.
-        Probability: 80/1000
+        Probability: 50/1000
         Trigger Condition: By chance. Fluctuations depend on the government and how they dictate bond prices.
         End Condition: After 15 days
         """
-        self.market.mu += ((self.market.mu)/(remaining*100))*0.9
+        self.market.mu = self.regular_mu + 0.00002
         if remaining <= 0:
             self.market.mu = self.regular_mu
 
@@ -336,8 +344,11 @@ class Event():
         End Condition: After 84 days, 4 working months, companies return to original interest rate after a few months
         """
         if (self.market.output[-1]*10)//1 <= 500:
-            self.market.sigma += 0.003
-            self.market.mu += ((self.market.mu)/(remaining*100))*1.01
+            self.market.sigma = self.regular_sigma + 0.00015
+            self.market.mu = self.regular_mu + 0.00001
+
+            # self.market.sigma += 0.003
+            # self.market.mu += ((self.market.mu)/(remaining*100))*1.01
             if remaining <= 0:
                 self.market.mu = self.regular_mu
                 self.market.sigma = self.regular_sigma
@@ -349,23 +360,23 @@ class Event():
         Description: Due to economic downturn, the government increases its taxes permanently.
         Thus, stock interest rates and stock yield decrease.
 
-        Probability: 20/1000
+        Probability: 10/1000
         Trigger Condition: Random. Government decides when tax increases are necessary to fill up treasury.
         End Condition: None. Goes on until the games end (1260 days)
         """
-
+        self.market.mu -= 0.00001
         self.regular_mu -= 0.0001
 
     def tariffs_increase(self, remaining):
         """
         Name: US Raises Tariffs
         Description: US Government increases tariffs.
-        Probability: 100/1000
+        Probability: 50/1000
         Trigger Condition: Random
         End Condition: Ends after 3 working months, 63 days.
         """
-
-        self.market.mu -= (0.0001)
+        self.market.mu = self.regular_mu - 0.000015
+        self.market.sigma = self.regular_sigma + 0.00001
         if remaining<=0:
             self.market.mu = self.regular_mu
 
@@ -375,11 +386,33 @@ class Event():
         Description: The founder of the company died.
         Probability: 5/1000
         Trigger Condition: Random
-        End Condition: Ends after 4 working months, 84 days.
+        End Condition: Ends after 2 working months, 42 days.
         """
         self.market.sigma += 0.0005
         if remaining<=0:
             self.market.sigma = self.regular_sigma
+
+    def gen_income_increase(self):
+        """
+        Name: Minimum Wage Hike
+        Description: The government raised minimum wage. Based on the IS-LM Model, stock prices increase.
+                     Increase in money = increase in ivestments = stock prices increase
+        Probability: 10/1000
+        Trigger Condition: Random.
+        """
+        self.market.mu += 0.005
+        self.regular_mu += 0.005
+
+    def lower_eps(self, remaining):
+        """
+        Name: Company's EPS decreases.
+        Description: The company's earnings per share decrease based on its income statement.
+        Probability: 50/1000
+        Trigger Condition: Random
+        """
+        self.market.mu = self.regular_mu - 0.00001
+        if remaining<=0:
+            self.market.mu = self.regular_mu
 
 
 

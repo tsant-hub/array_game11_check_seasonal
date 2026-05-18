@@ -21,8 +21,8 @@ class Viewport():
         self.max_view_height = 10**4
         self.view_height = 2100
 
-        self.max_view_length = 250
-        self.view_length = 15
+        self.max_view_length = 251
+        self.view_length = 11
         
         
         '''
@@ -104,16 +104,9 @@ class Viewport():
         # surface.blit(x_marker_surface, (self.pos[0]-25,self.pos[1]+self.height))
 
     
-        for i in range(len(self.x_vals)):
+        for i in range(0, len(self.x_vals), len(self.x_vals)//10):
             # add a big view / small view approach maybe?            
-            if (self.view_length > 100) and (i%15!=0) and (i!=len(self.x_vals)-1):
-                continue
-            elif (self.view_length > 50) and (i%10!=0) and (i!=len(self.x_vals)-1):
-                continue
-            elif (self.view_length > 15) and (i%5!=0) and (i!=len(self.x_vals)-1):
-                continue
-            
-            
+
             mark = text_viewui.render(f'{self.total_points-i}', False, colors['ui'])
             pos = self.x_vals[-i-1]-mark.size[0]/2+25,10
 
@@ -147,7 +140,7 @@ class Viewport():
         self.filter_y_vals = self.y_vals[:-(self.view_length+1):-1][::-1]
         self.x_vals = np.linspace(0, int(self.width), len(self.filter_y_vals))
 
-        pygame.draw.line(self.surface, colors['ui'], (0, self.convert_point(self.height/2)), (self.width, self.convert_point(self.height/2)))
+        pygame.draw.line(self.surface, colors['ui'], (0, self.convert_point(0)), (self.width, self.convert_point(0)))
 
         self.processed_vals = self.convert_point(self.filter_y_vals)
         
@@ -158,20 +151,6 @@ class Viewport():
         # print(self.y_vals)
     
     def scale_y(self, zom):
-
-        # Occam's Razor 😮
-
-        # self.surface.fill(colors['bg'])        
-        # if (self.view_height >= 0) and (self.view_height <= self.max_view_height):
-        #     self.view_height += (zom * self.max_view_height/100)
-        #     self.zoom = self.height/self.view_height
-        #     print(1)
-        # elif self.view_height < 0 :
-        #     self.view_height = self.max_view_height/100
-        #     print(2)
-        # elif self.view_height > self.max_view_height:
-        #     self.view_height = self.max_view_height - self.max_view_height/100
-        #     print(3)
         self.surface.fill(colors['bg'])        
         self.view_height += (zom * self.max_view_height/100)
         self.zoom = self.height/self.view_height
@@ -180,14 +159,6 @@ class Viewport():
         self.surface.fill(colors['bg'])
         self.view_length += zom
 
-        # Incorporated lapaw error catching conditionals into keybind conditionals instead
-
-        # if 5 < self.view_length < self.max_view_length:
-        #     self.view_length += zom
-        # elif self.view_length == 5 and zom > 0:
-        #     self.view_length += zom
-        # elif self.view_length == 51 and zom < 0:
-        #     self.view_length -= 1
 
     def translate(self, val):
         self.surface.fill(colors['bg'])

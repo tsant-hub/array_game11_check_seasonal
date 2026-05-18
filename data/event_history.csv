@@ -1,2 +1,4 @@
 day,name,type,probability,decision,message,duration
-2,Market Rise,Economy,100,False,Market price is predicted to rise,10
+1,Market Rise,Economy,100,False,Market price is predicted to rise,10
+3,Billiards,Regular,100,True,Your friends invite you to billiards.,2
+12,Market Rise,Economy,100,False,Market price is predicted to rise,10

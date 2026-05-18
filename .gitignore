@@ -1,5 +1,4 @@
-/__pycache__/
-/le2_review/
-/.vscode/
+__pycache__/
+.vscode/
 __pycache__/utils.cpython-313.pyc
 __pycache__/market.cpython-313.pyc

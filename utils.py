@@ -18,6 +18,8 @@ text_main: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323
 text_viewui = pygame.font.Font(os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=24)
 text_button: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=32)
 text_dash: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=32)
+text_end: Font = pygame.font.Font(filename=os.path.join('assets','fonts','vt323-latin-400-normal.ttf'), size=32)
+text_end.align = pygame.FONT_CENTER
 
 # sound effects initialization
 sound_news = pygame.mixer.Sound(os.path.join('assets','sounds','news.mp3'))
