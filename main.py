@@ -24,7 +24,7 @@ from trade import *
 from market import *
 from event import *
 
-
+#initializes pygame
 pygame.init()
 
 window = pygame.display.set_mode((scrx, scry))
@@ -32,12 +32,11 @@ pygame.clock = pygame.time.Clock()
 pygame.display.set_caption('DEATH CAPITAL, INC.')
 
 
-
+# calls all the required classes
 viewport = Viewport()
 trade = Trade(money)
 market = Market(1000)
 newsbox = NewsBox((60,viewport.pos[1]+viewport.height+45),(630,150))
-
 phenomena = Event(trade, market, newsbox,viewport)
 
 ''' title screen'''
@@ -93,7 +92,7 @@ def credits(surf,color,end_y):
 
 def shut_down():
     '''
-    Shut Down Functio; for styllistic exit
+    Shut Down Function for styllistic exit
     Description: For a styllistic shutting down of the system
     '''
     dots = ''
@@ -233,6 +232,7 @@ def game():
 
     occurence = ['','', 100, False, '']   
     
+    #game loop
     while True:
         window.fill(colors['bg'])
 
@@ -252,7 +252,7 @@ def game():
             phenomena.day+=1
             occurence = phenomena.select()
             phenomena.update()
-            print(market.mu, phenomena.market.mu, phenomena.regular_mu)
+            # print(market.mu, phenomena.market.mu, phenomena.regular_mu) #uncomment if wanna see the current state of stock
             updateCSV()
 
         trade.render(window)

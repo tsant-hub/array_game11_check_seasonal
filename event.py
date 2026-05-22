@@ -29,7 +29,7 @@ PLAN
     - LEVEL 3
         - war
         - pandemic
-        - cuop
+        - coup
 
 
 '''
@@ -40,6 +40,7 @@ from defaults import *
 from utils import *
 
 
+# Creates and pops up events in the game
 class Event():
     def __init__(self, trade, market, newsbox,viewport):
         ''' 
@@ -52,9 +53,9 @@ class Event():
         '''
         
         self.trade = trade  # calls a copy of the trade class instance
-        self.market = market
-        self.newsbox = newsbox
-        self.viewport = viewport
+        self.market = market # calls a copy of the market class instance
+        self.newsbox = newsbox # calls a copy of the newsbox class instance
+        self.viewport = viewport # calls a copy of the viewport class instance
 
         # event entry: [name, type, probability, trigger decision(bool), msg text, duration]
         self.events = np.array([
@@ -82,6 +83,7 @@ class Event():
 
         self.event_list = []
 
+        # default values
         self.weights = 0
         self.day = DAY
         self.end = 0
@@ -180,15 +182,16 @@ class Event():
                     self.invoke(evnt[0],evnt[1])
 
                 evnt[1] -= 1
-        print(self.event_list)
+        #print(self.event_list)
 
 
 
 
 
     ''' events framework '''
+    # matches event to its respective index on the array above
     def invoke(self, num, remaining, decision=None):
-        print(num)
+        #print(num)
         match num:
             case 0:
                 pass
@@ -229,6 +232,8 @@ class Event():
 
 
     ''' custom events '''
+
+    #events affect default values
 
     def market_rise(self, remaining):
         ''' 

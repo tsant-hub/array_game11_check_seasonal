@@ -12,25 +12,25 @@ from defaults import *
 from utils import *
 from trade import *
 
+# blits out the graph of the stock price
 class Viewport():
     def __init__(self):
+        ''' where the graph blits out on the screen specifically '''
         self.width, self.height = scrx/2,scry/2
         self.pos=((scrx-self.width)/2-150,scrx*0.1)
         self.surface = pygame.Surface((self.width, self.height))
         
+
+        ''' max viewable y-values '''
         self.max_view_height = 10**4
         self.view_height = 2100
 
+        ''' max viewable x-values '''
         self.max_view_length = 251
         self.view_length = 11
-        
-        
-        '''
-        remaining to do for today
-        -   modify max view length to be max 252; adjust the viewport naming for that also
-        -   make the buy/sell system
-        '''
 
+
+        ''' default zoom settings'''
         self.zoom = self.height/self.view_height
         self.interval = 0
         self.total_points = 0
@@ -41,6 +41,8 @@ class Viewport():
         self.x_vals = np.linspace(0, int(self.width), len(self.y_vals))
         self.processed_vals = 0
 
+
+    ''' follows the the current day point of the graph'''
     def convert_point(self, point):
         if not self.follow:
             mode = self.translation
@@ -48,6 +50,8 @@ class Viewport():
             mode = self.y_vals[-1]
         return self.height/2 - ((point-mode) * self.zoom)
     
+
+    ''' '''
     def render(self, surface):
         surface.blit(self.surface, self.pos)
 
@@ -95,17 +99,8 @@ class Viewport():
         x_marker_surface = pygame.Surface((scrx/2+50, 50))
         x_marker_surface.fill(colors['bg'])
         
-        # tried to implement one that works like the y scaling but i keep on messing it up
-        # for i in range(-int(self.view_length/2), int(self.view_length/2)):
-        #     mark = text_viewui.render(f'{self.total_points-i}', False, colors['ui'])
-        #       
-        #                             vvv modifies which position to place each number
-        #     x_marker_surface.blit(mark,(self.x_vals[-i-1+int(self.view_length/2)]-mark.size[0]/2+25,10))
-        # surface.blit(x_marker_surface, (self.pos[0]-25,self.pos[1]+self.height))
-
     
         for i in range(0, len(self.x_vals), len(self.x_vals)//10):
-            # add a big view / small view approach maybe?            
 
             mark = text_viewui.render(f'{self.total_points-i}', False, colors['ui'])
             pos = self.x_vals[-i-1]-mark.size[0]/2+25,10
@@ -119,10 +114,6 @@ class Viewport():
         self.total_points +=1
         # the specific code that adds a new y value in the data set
 
-        # random
-        # self.y_vals = np.append(self.y_vals, random.randrange(-self.max_view_height, int(self.max_view_height/10), int(self.max_view_height/1000)))
-        # self.y_vals = np.append(self.y_vals, self.max_view_height if (random.randint(0,1) == 0) else -self.max_view_height)
-
         # from market
         self.y_vals = np.append(self.y_vals, num)
       
@@ -134,9 +125,7 @@ class Viewport():
 
 
     def draw(self, color):
-        ''' 
-        y_vals must be of ndarray format
-        '''
+
         self.filter_y_vals = self.y_vals[:-(self.view_length+1):-1][::-1]
         self.x_vals = np.linspace(0, int(self.width), len(self.filter_y_vals))
 
@@ -148,7 +137,6 @@ class Viewport():
         
         pygame.draw.lines(self.surface, color, False, points, width=3)
 
-        # print(self.y_vals)
     
     def scale_y(self, zom):
         self.surface.fill(colors['bg'])        

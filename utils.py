@@ -39,11 +39,11 @@ f = open(os.path.join('data','event_history.csv'),'w')
 f.write('day,name,type,probability,decision,message,duration\n')
 f.close()
 
-
+# log of past events in the game
 EVENT_HISTORY = pd.read_csv(os.path.join('data','event_history.csv'))
 
+# adds events to event csv file
 def updateCSV():
-    # can optimize this
     EVENT_HISTORY.to_csv(os.path.join('data','event_history.csv'), index=False)
         
 
@@ -90,6 +90,7 @@ def show_boundaries(state, window, viewport):
     else:
         pass
 
+# base for all buttons
 class Button():
     def __init__(self, pos, size, text, mode):
         '''
@@ -133,6 +134,7 @@ class Button():
                 self.color = colors['button']
                 self.state = False
 
+# responisible for the text appearing
 class TextBox():
     def __init__(self, pos, size):
         self.size = size
@@ -154,6 +156,7 @@ class TextBox():
         for button in self.buttons:
             button.update()
 
+# default window
 class Window():
     def __init__(self, pos, size):
         self.pos = pos
@@ -171,8 +174,7 @@ class Window():
         for button in self.buttons:
             button.render(window)
 
-    
-
+# newsbox of the game
 class NewsBox(TextBox):
     def __init__(self, pos, size):
         TextBox.__init__(self, pos, size)

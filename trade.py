@@ -7,8 +7,10 @@ import numpy as np
 from defaults import *
 from utils import *
 
+# Enables the trading mechanic of the game
 class Trade():
     def __init__(self, balance):
+
         # vars
         self.balance = balance
         self.share = 0
@@ -74,6 +76,7 @@ class Trade():
 
 
 
+    # updates the balance/shares of the player
     def update(self, price):
         for button in self.BUTTONS:
             button.update()
@@ -114,14 +117,14 @@ class Trade():
             else:
                 self.bet = round(self.value/self.price)
 
-    # how tf do you buy and sell with shares
+    # adds to the number of shares you own, decreases player balance
     def buy(self, amt):
         self.share+=amt
         self.prev_value=self.price
         self.balance-=self.prev_value*amt
 
 
-    
+    # deducts the number of shares you own, increases balance
     def sell(self, amt):
         self.share-=amt
         self.balance+=amt*self.price

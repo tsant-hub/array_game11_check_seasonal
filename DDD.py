@@ -1,5 +1,5 @@
 ''' 
-prototypr idea #1 for math 154 fproj 
+prototype idea #1 for math 154 fproj
 
 source for 3d model: https://github.com/alecjacobson/common-3d-test-models/blob/master/data/rocker-arm.obj
 '''
@@ -104,6 +104,7 @@ def render(surf,zoom,rotate):
     return dz
 
 
+# renders the 3D engine
 def game():
     global dt
     global dz
@@ -120,7 +121,7 @@ def game():
 
         render(window)
         
-
+        #rotates the 3D model
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()   
