@@ -39,26 +39,20 @@ class Trend():
         '''
         self.a = 'a'
 
+""" affects stock based on what day it is"""
 class Season():
     """
-    Generalized Sinusoidal Wave Equation used, instead of complex Seasonality formula used to forecast data
-    Periodic changes, based on what day it is, used cos function for greater changes in mu in the end and the beginning (winter seasons)
-    higher mu = greater yield (from my general understanding of the market)
-    Not sure if need to add phase shift from the cosinusoidal wave equation, since if included, mu would change too drastically
-    period is probably(?) all we need for the
-    reference: https://blog.gopenai.com/sinusoidal-encoding-a-key-concept-for-data-representation-542e5015cd7e
-    complex seasonality: https://otexts.com/fpp3/complexseasonality.html
+    General Sinusoidal Wave Equation used, instead of complex Seasonality
     """
     def __init__(self, period, amplitude):
         self.period = period
         self.amplitude=amplitude
+
+    # seasonality of the game
     def Seasonality_Update(self,time):
         season_trend=self.amplitude*np.cos((2*np.pi/self.period)*time)
         return season_trend
 
-
-
-# class Event()
 
 
 # Geometric Brownian Motion model
@@ -100,18 +94,6 @@ class Market():
     def graph(self):
         plt.plot(self.output*10)
         # plt.show()
-
-
-# np.random.seed(889571)
-# for j in range(100):
-#     np.random.seed()
-#     market = Market(1000)
-#     for i in range(252):
-#         market.gen_points()
-#     market.graph()
-
-# plt.show()
-
 
 
 
